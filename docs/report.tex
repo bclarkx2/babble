@@ -1,0 +1,108 @@
+% Class
+
+\documentclass{article}
+
+
+% Info
+
+\title{Babble: Learning Grammar Structure with Generative Adversarial Networks}
+\author{Brian Clark, CWRU}
+
+\date{\today}
+
+% Packages
+
+% \usepackage{amsmath}
+% \usepackage{nccmath}
+% \usepackage{enumerate}
+% \usepackage{bm}
+% \usepackage{textcomp}
+% \usepackage{numproof}
+% \usepackage{math_shortcuts}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{hyperref}
+
+% Settings
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+\graphicspath{ {img/} }
+
+
+% Commands
+
+
+% Document
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\abstract{This is the text of the abstract}
+
+\section{Introduction}
+
+\subsection{Problem}
+Goal: Generate text that looks like it came from a language
+Problems: How to determine whether the text is from the language?
+
+\subsection{Grammar}
+    Rule system to describe language
+    Defined grammar -> any sentence can be judged
+    If we had grammar, could use as penalty function
+    Complexity
+    Rather than come up with rules, rely on data
+
+\subsection{Generative Adversarial Networks}
+    How they work
+    Role of generator
+    Role of discriminator
+
+\section{Background}
+    ???
+
+\section{Approach}
+    Description
+        role of generator
+            inputs
+            outputs
+        role of discriminator
+            inputs
+            outputs
+        overall diagram
+    Grammar definition
+        Abstract definition
+            class diagram?
+        Tools
+            nltk
+        Grammars
+            SimpleGrammar
+                description
+                generation process
+            \_Grammar
+            English
+    Network definition
+        Tools
+            keras
+        Generator structure
+            diagram
+        Discriminator structure
+            diagram
+
+\section{Results}
+    Experiments
+        Network structure
+        Amount of data
+
+\section{Discussion}
+
+\section{Conclusions}
+
+
+Some text, from \cite{chollet2015keras}
+
+\bibliography{sources}{}
+\bibliographystyle{plain}
+
+\end{document}
