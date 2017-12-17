@@ -8,15 +8,13 @@
 import argparse
 
 import numpy as np
-from keras.layers import Dropout, Flatten, Dense, Activation, BatchNormalization, Reshape, \
-    UpSampling2D, Conv2DTranspose
 from keras.models import Sequential
 from keras.optimizers import RMSprop
 from keras.preprocessing.text import Tokenizer
 
 # LOCAL
 from discriminator import basic_discriminator
-
+from generator import basic_generator
 
 np.random.seed(1234)
 
@@ -40,7 +38,7 @@ class GAN(object):
     SENTENCE_LENGTH = 3
     NOISE_SIZE = 100
 
-    def __init__(self, disc):
+    def __init__(self, disc, gen):
 
         self.tkn = tokenizer(SIMPLE_WORDS)
         self.corpus = corpus(SIMPLE_SENTENCES)
@@ -51,7 +49,7 @@ class GAN(object):
         self.neg_sentences = sequences(self.tkn, SIMPLE_NEGATIVES)
 
         self.disc = disc
-        self.gen = self._gen()
+        self.gen = gen
 
         self.disc_flow = self._disc_flow()
         self.adv_flow = self._adv_flow()
@@ -64,31 +62,6 @@ class GAN(object):
                                optimizer=optimizer,
                                metrics=['accuracy'])
         return self.disc_flow
-
-    def _gen(self):
-
-        self.gen = Sequential()
-
-        dim = 3
-        depth = 16
-        dropout = 0.4
-
-        self.gen.add(Dense(dim*dim*depth, input_dim=100))
-        self.gen.add(BatchNormalization(momentum=0.9))
-        self.gen.add(Activation('relu'))
-        self.gen.add(Reshape((dim, dim, depth)))
-        self.gen.add(Dropout(dropout))
-
-        self.gen.add(UpSampling2D())
-        self.gen.add(Conv2DTranspose(int(depth/2), 4, padding='same'))
-
-        self.gen.add(Flatten())
-        self.gen.add(Dense(3))
-        self.gen.add(Activation('sigmoid'))
-        self.gen.add(Reshape((3, 1)))
-
-        self.gen.summary()
-        return self.gen
 
     def _adv_flow(self):
         optimizer = RMSprop(lr=0.0001, decay=3e-8)
@@ -235,14 +208,15 @@ def main():
     args = get_args()
 
     disc = basic_discriminator(shape=(3,1))
-    gan = GAN(disc)
+    gen = basic_generator()
+    gan = GAN(disc, gen)
 
     # print(gan.pos_sentences)
     # print(gan.neg_sentences)
 
-    gan.train_disc(train_itr=2000)
+    # gan.train_disc(train_itr=2000)
 
-    # gan.train_adv(train_itr=10000)
+    gan.train_adv(train_itr=101)
 
 
 if __name__ == '__main__':
