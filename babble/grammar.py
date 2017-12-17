@@ -7,27 +7,8 @@
 import argparse
 import nltk
 
+from keras.preprocessing.text import Tokenizer
 
-###############################################################################
-# Constants                                                                   #
-###############################################################################
-
-
-
-###############################################################################
-# Classes                                                                     #
-###############################################################################
-
-# simple_grammar = nltk.CFG.fromstring("""
-#   S -> NP VP
-#   VP -> V NP | V NP PP
-#   PP -> P NP
-#   V -> "saw" | "ate" | "walked"
-#   NP -> "John" | "Mary" | "Bob" | Det N | Det N PP
-#   Det -> "a" | "an" | "the" | "my"
-#   N -> "man" | "dog" | "cat" | "telescope" | "park"
-#   P -> "in" | "on" | "by" | "with"
-#   """)
 
 simple = nltk.data.load("file:grammars/simple.cfg")
 
@@ -40,6 +21,10 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--arg")
     return parser.parse_args()
+
+
+def simple_parser():
+    return nltk.RecursiveDescentParser(simple)
 
 
 ###############################################################################
