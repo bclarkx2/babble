@@ -6,15 +6,14 @@
 
 # LIB
 import argparse
-
 import numpy as np
 from keras.models import Sequential
 from keras.optimizers import RMSprop
-from keras.preprocessing.text import Tokenizer
 
 # LOCAL
 from discriminator import basic_discriminator
 from generator import basic_generator
+from grammar import SimpleGrammar
 
 np.random.seed(1234)
 
@@ -23,36 +22,35 @@ np.random.seed(1234)
 # Constants                                                                   #
 ###############################################################################
 
-SIMPLE_SENTENCES = "data/simple/sentences"
-SIMPLE_NEGATIVES = "data/simple/negatives"
-SIMPLE_WORDS = "data/simple/words"
-
 
 ###############################################################################
 # Classes                                                                     #
 ###############################################################################
-
 
 class GAN(object):
 
     SENTENCE_LENGTH = 3
     NOISE_SIZE = 100
 
-    def __init__(self, disc, gen):
+    def __init__(self, disc, gen, grammar):
 
-        self.tkn = tokenizer(SIMPLE_WORDS)
-        self.corpus = corpus(SIMPLE_SENTENCES)
-        self.reverse_corpus = reverse_corpus(self.corpus)
-        self.num_words = len(self.corpus)
+        self.grammar = grammar
 
-        self.pos_sentences = sequences(self.tkn, SIMPLE_SENTENCES)
-        self.neg_sentences = sequences(self.tkn, SIMPLE_NEGATIVES)
+        self.pos_sentences = self.grammar.sentences()
+        self.neg_sentences = self.grammar.negatives()
 
         self.disc = disc
         self.gen = gen
 
         self.disc_flow = self._disc_flow()
         self.adv_flow = self._adv_flow()
+
+    @property
+    def num_words(self):
+        return self.grammar.num_words
+
+    def translate(self, index_list):
+        return self.grammar.to_sentence(index_list)
 
     def _disc_flow(self):
         optimizer = RMSprop(lr=0.0002, decay=6e-8)
@@ -132,13 +130,6 @@ class GAN(object):
         translated = self.translate(generated_list)
         return translated
 
-    def translate(self, index_list):
-        index_scalar = self.num_words - 1
-        scaled = [int(idx * index_scalar) + 1 for idx in index_list]
-        translated_lst = [self.reverse_corpus[idx] for idx in scaled]
-        translated_string = " ".join(translated_lst)
-        return translated_string
-
     @staticmethod
     def noise(batch_size):
         return np.random.uniform(-1.0, 1.0, size=[batch_size, GAN.NOISE_SIZE])
@@ -150,48 +141,6 @@ class GAN(object):
 ###############################################################################
 # Helper functions                                                            #
 ###############################################################################
-
-def read_lines(filename):
-    with open(filename, 'r') as sentence_file:
-        return sentence_file.read().splitlines()
-
-
-def sequences(tkn, filename):
-
-    sentences = read_lines(filename)
-
-    seqs = tkn.texts_to_sequences(sentences)
-    seqs = np.array(seqs, dtype='float32')
-    seqs = np.expand_dims(seqs, axis=2)
-
-    return seqs
-
-
-def corpus(filename):
-
-    tkn = tokenizer(filename)
-
-    return tkn.word_index
-
-
-def reverse_corpus(corpus_dict):
-    return {val: key for key, val in corpus_dict.items()}
-
-
-def tokenizer(filename):
-
-    sentences = read_lines(filename)
-
-    tkn = Tokenizer(num_words=None,
-                    filters="!#$%&()*+,-./:;<=>?@[\\]^_`{|}~\t\n",
-                    lower=True,
-                    split=" ",
-                    char_level=False)
-
-    tkn.fit_on_texts(sentences)
-
-    return tkn
-
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -205,18 +154,16 @@ def get_args():
 
 def main():
 
-    args = get_args()
+    # args = get_args()
 
-    disc = basic_discriminator(shape=(3,1))
+    disc = basic_discriminator(shape=(3, 1))
     gen = basic_generator()
-    gan = GAN(disc, gen)
-
-    # print(gan.pos_sentences)
-    # print(gan.neg_sentences)
+    gram = SimpleGrammar()
+    gan = GAN(disc, gen, gram)
 
     # gan.train_disc(train_itr=2000)
 
-    gan.train_adv(train_itr=101)
+    gan.train_adv(train_itr=1000)
 
 
 if __name__ == '__main__':
