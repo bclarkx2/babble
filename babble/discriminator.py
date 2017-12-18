@@ -4,7 +4,7 @@
 ###############################################################################
 
 from keras import Sequential
-from keras.layers import Conv1D, Flatten, Dense, Activation
+from keras.layers import Conv1D, Flatten, Dense, Activation, LeakyReLU, Dropout
 
 
 ###############################################################################
@@ -48,3 +48,17 @@ def basic_discriminator(shape=(3,1)):
     disc.summary()
     return disc
 
+
+def no_conv_disc(shape=(3,1)):
+
+    disc = Sequential()
+
+    disc.add(Dense(6, input_shape=shape))
+    disc.add(LeakyReLU(alpha=0.2))
+
+    # Out: 1-dim probability
+    disc.add(Flatten())
+    disc.add(Dense(1))
+    disc.add(Activation('sigmoid'))
+    disc.summary()
+    return disc
