@@ -7,15 +7,20 @@
 # LIB
 import argparse
 
+import keras
 import numpy as np
+import tensorflow as tf
 from copy import deepcopy
 from keras import backend as K
 from keras.models import Sequential
+from keras.layers import Input
 from keras.optimizers import RMSprop
 
 # LOCAL
+from keras.utils import plot_model
+
 from discriminator import no_conv_disc
-from generator import basic_generator
+from generator import basic_generator, only_dense_gen
 from grammar import SimpleGrammar
 
 np.random.seed(1234)
@@ -69,7 +74,7 @@ class GAN(object):
         self.disc_flow.add(self.disc)
         self.disc_flow.compile(loss='binary_crossentropy',
                                optimizer=optimizer,
-                               metrics=['accuracy', mean_pred])
+                               metrics=['accuracy'])
         return self.disc_flow
 
     def _adv_flow(self):
@@ -153,34 +158,52 @@ class GAN(object):
 
                 print("Iter: {:<5d}; Discriminator loss: {}".format(itr, disc_loss))
 
+    def save_oracle(self):
+        self.train_disc_all(train_itr=300,
+                            batch_size=100)
+        self.disc_flow.save("disc_flow")
+        self.adv_flow.save("adv_flow")
+
     def train_adv_oracle(self,
                          disc_itr=200,
                          disc_batch_size=100,
                          adv_itr=1000,
                          adv_batch_size=100,
-                         printerval=100):
+                         printerval=100,
+                         fresh_oracle=False):
 
         # first, train the discriminator fully
-        self.train_disc_all(train_itr=disc_itr,
-                            batch_size=disc_batch_size)
+        if fresh_oracle:
+            self.train_disc_all(train_itr=disc_itr,
+                                batch_size=disc_batch_size)
+            oracle = self.disc_flow.layers[0]
+        else:
+            old_disc_flow = keras.models.load_model("disc_flow")
+            oracle = old_disc_flow.layers[0]
+        oracle.trainable = False
 
-        # lock the discriminator
-        self.disc.trainable = False
+        # build an adversarial model using oracle
+        optimizer = RMSprop(lr=0.001)  # decay=3e-8)
+        oracle_flow = Sequential()
+        oracle_flow.add(self.gen)
+        oracle_flow.add(oracle)  # add fixed, saved oracle
+        oracle_flow.compile(loss='binary_crossentropy',
+                            optimizer=optimizer,
+                            metrics=['accuracy'])
 
-        # now, train adv model using discriminator as oracle
+        # train on a bunch of noise
+        # assert that noise should always lead to valid sentence
+        # eventually, it should actually make valid sentences from noise
         for itr in range(adv_itr):
 
             noise = GAN.noise(adv_batch_size)
             labels = np.ones([adv_batch_size, 1])
 
-            loss = self.adv_flow.train_on_batch(noise, labels)
+            loss = oracle_flow.train_on_batch(noise, labels)
 
             if itr % printerval == 0:
                 print("Itr: {}; loss: {}".format(itr, loss))
                 print(self.generate())
-
-        # unlock discriminator afterwards, just in case?
-        self.disc.trainable = True
 
     def train_adv(self, train_itr=100, batch_size=10, test_interval=100):
 
@@ -262,7 +285,7 @@ def main():
     # args = get_args()
 
     disc = no_conv_disc(shape=(3, 1))
-    gen = basic_generator()
+    gen = only_dense_gen(input_dim=100)
     gram = SimpleGrammar()
     gan = GAN(disc, gen, gram)
 
@@ -273,7 +296,10 @@ def main():
     #                                      gan.all_labels)
     # print("final stats: {}".format(final_stats))
 
-    gan.train_adv_oracle()
+    gan.train_adv_oracle(adv_itr=2000,
+                         adv_batch_size=1000)
+
+    # gan.save_oracle()
 
 
 if __name__ == '__main__':
