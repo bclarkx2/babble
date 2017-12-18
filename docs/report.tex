@@ -1,6 +1,6 @@
 % Class
 
-\documentclass{article}
+\documentclass[12pt]{article}
 
 
 % Info
@@ -22,6 +22,7 @@
 \usepackage{blindtext}
 \usepackage{graphicx}
 \usepackage{cite}
+\usepackage{doi}
 \usepackage{hyperref}
 
 % Settings
@@ -45,20 +46,37 @@
 \section{Introduction}
 
 \subsection{Problem}
-Goal: Generate text that looks like it came from a language
-Problems: How to determine whether the text is from the language?
+
+The English language is undeniably a complex construct. English grammar is composed of dozens of rules, many of which are only loosely applied. The vocabulary is incredibly vast, and growing everyday. English is consistently rated one of the most difficult world languages for new speakers to learn.
+
+And yet, even young children are capable of producing speech that is widely accepted as "English" -- at least, most of the time. Clearly, the human brain has a well developed capability for internalizing the deep structure of a language like English and generating examples that match that structure.
+
+This naturally leads to the question: can intelligences other than human brains perform a similar feat? The purpose of this project is to produce a deep learning network that, given examples of text from a language, is able to produce text samples that comply with the rules of that language.
 
 \subsection{Grammar}
-    Rule system to describe language
-    Defined grammar -> any sentence can be judged
-    If we had grammar, could use as penalty function
-    Complexity
-    Rather than come up with rules, rely on data
+
+The first challenge built into this learning problem is the definition of a language.
+
+A approach to language definition is to think of a language as a set of formal rules called a grammar\cite{nltk_book}. Any piece of text satisfying the rules of the grammar can be considered part of the language inquestion. This grammar can be thought of as an operational definition of a language.
+
+This leads to a natural conclusion in the realm of generative networks: a grammar could serve as a loss function for a network. The network would be rewarded for creating a grammatical sentence and penalized for created a non-grammatical sentence.
+
+The limitations with this approach are the same as the limitations for grammars in general. For any sufficiently complex language, it becomes difficult to write a correct and complete grammar describing the language. For example, there is no one extant grammar that is widely regarded to represent the entirety of the English language. It may not even be possible to create such a grammar.
+
+Without the feedback provided by a formal grammar, there is still one source of grammaticality available to us: actual sentences. Ideally, the generative network could use an existing corpus of sentences in a language as the basis for building a model of the language. Using data itself to glean structure rather than a set of predesigned rules is a mainstay of machine learning. This is the approach followed in this project.
 
 \subsection{Generative Adversarial Networks}
-    How they work
-    Role of generator
-    Role of discriminator
+
+A tool explored in this project is a deep learning model known as Generative Adversarial Networks \cite{gen_adv_model}.
+
+The idea behind the generative adversarial approach is to split the network into two subnetworks, each with a distinct role:
+
+\begin{itemize}
+    \item \textbf{Discriminator}: The discriminator is trained to recognize the difference between examples that meet certain criteria and examples that do not. For example, the discriminator would be able to tell if a given sentence was grammatical or not in a language.
+    \item \textbf{Generator}: This subnetwork is responsible for transforming random noise inputs into samples that meet the criteria being judged for by the discriminator. In this example, the generator would attempt to create phrases out of random noise that follow the rules of a language.
+\end{itemize}
+
+The insight behind this model, however, is the interplay between the two subsystem. The outputs from the generator are fed into the discriminator and labelled as negative examples. This creates a feedback loop where the discriminator gets ever better at distinguishing fake sentences from real sentences which pushes the generator to produce more realistic sentences.
 
 \section{Background}
     ???
