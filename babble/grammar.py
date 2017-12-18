@@ -61,7 +61,7 @@ class Grammar(object):
     def to_sentence(self, index_list):
         # index_scalar = self.num_words - 1
         # scaled = [int(idx * index_scalar) + 1 for idx in index_list]
-        scaled = [int(idx) for idx in index_list]
+        scaled = [int(idx) + 1 for idx in index_list]
         translated_lst = [self.reverse_corpus[idx] for idx in scaled]
         translated_string = " ".join(translated_lst)
         return translated_string

@@ -3,6 +3,7 @@
 # Imports                                                                     #
 ###############################################################################
 from keras import Sequential
+from keras.initializers import Constant
 from keras.layers import Dense, BatchNormalization, Activation, Reshape, Dropout, UpSampling2D, Conv2DTranspose, \
     Flatten, Lambda
 from keras import backend as K
@@ -38,7 +39,7 @@ def basic_generator(input_dim=100):
     return gen
 
 
-def only_dense_gen(input_dim=100):
+def only_dense_gen(input_dim=100, vocab_size=20):
 
     gen = Sequential()
 
@@ -51,7 +52,7 @@ def only_dense_gen(input_dim=100):
     gen.add(Dense(3))
     gen.add(Activation('sigmoid'))
     gen.add(Reshape((3, 1)))
-    gen.add(Lambda(lambda x: x * 20))
+    gen.add(Lambda(lambda x: x * vocab_size))
 
     gen.summary()
     return gen
