@@ -45,13 +45,20 @@ def only_dense_gen(input_dim=100, vocab_size=20):
 
     dim = 3
     depth = 16
-    dropout = 0.4
+    # dropout = 0.4
 
+    # exapnd to large layer to look for many features
     gen.add(Dense(dim*dim*depth, input_dim=input_dim))
     gen.add(Activation('sigmoid'))
+
+    # condense to sentence size
     gen.add(Dense(3))
     gen.add(Activation('sigmoid'))
+
+    # add extra dimension
     gen.add(Reshape((3, 1)))
+
+    # expand output to the range of a sentence
     gen.add(Lambda(lambda x: x * vocab_size))
 
     gen.summary()
