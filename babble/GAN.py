@@ -8,6 +8,7 @@
 import argparse
 
 import numpy as np
+from copy import deepcopy
 from keras import backend as K
 from keras.models import Sequential
 from keras.optimizers import RMSprop
@@ -85,6 +86,8 @@ class GAN(object):
         optimizer = RMSprop(lr=0.0001, decay=3e-8)
         self.gen_flow = Sequential()
         self.gen_flow.add(self.gen)
+        self.gen_flow.add(self.disc)
+        self.disc.trainable = False
         self.gen_flow.compile(loss="binary_crossentropy",
                               optimizer=optimizer,
                               metrics=['accuracy'])
@@ -150,6 +153,35 @@ class GAN(object):
 
                 print("Iter: {:<5d}; Discriminator loss: {}".format(itr, disc_loss))
 
+    def train_adv_oracle(self,
+                         disc_itr=200,
+                         disc_batch_size=100,
+                         adv_itr=1000,
+                         adv_batch_size=100,
+                         printerval=100):
+
+        # first, train the discriminator fully
+        self.train_disc_all(train_itr=disc_itr,
+                            batch_size=disc_batch_size)
+
+        # lock the discriminator
+        self.disc.trainable = False
+
+        # now, train adv model using discriminator as oracle
+        for itr in range(adv_itr):
+
+            noise = GAN.noise(adv_batch_size)
+            labels = np.ones([adv_batch_size, 1])
+
+            loss = self.adv_flow.train_on_batch(noise, labels)
+
+            if itr % printerval == 0:
+                print("Itr: {}; loss: {}".format(itr, loss))
+                print(self.generate())
+
+        # unlock discriminator afterwards, just in case?
+        self.disc.trainable = True
+
     def train_adv(self, train_itr=100, batch_size=10, test_interval=100):
 
         for itr in range(train_itr):
@@ -157,15 +189,12 @@ class GAN(object):
             # generate some fake sentences from generator
             noise = GAN.noise(batch_size)
             neg_examples = self.gen.predict(noise)
-            neg_labels = np.zeros((batch_size,))
 
             # grab some positive examples from list of valid sentences
             pos_examples = self.pos_sentences[self.train_indices(batch_size)]
-            pos_labels = np.ones((batch_size,))
 
             # combine them to make a well rounded batch
-            examples = np.concatenate((pos_examples, neg_examples))
-            labels = np.concatenate((pos_labels, neg_labels))
+            examples, labels = label(pos_examples, neg_examples)
 
             # train the discriminator to get better at ignoring fake sentences
             disc_loss = self.disc_flow.train_on_batch(examples, labels)
@@ -217,6 +246,7 @@ def label(pos_examples, neg_examples):
 
     return examples, labels
 
+
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--arg")
@@ -236,14 +266,14 @@ def main():
     gram = SimpleGrammar()
     gan = GAN(disc, gen, gram)
 
-    gan.train_disc_all(train_itr=100,
-                         batch_size=1000)
+    # gan.train_disc_all(train_itr=200,
+    #                      batch_size=100)
+    #
+    # final_stats = gan.disc_flow.evaluate(gan.all_sentences,
+    #                                      gan.all_labels)
+    # print("final stats: {}".format(final_stats))
 
-    final_stats = gan.disc_flow.evaluate(gan.all_sentences,
-                                         gan.all_labels)
-    print("final stats: {}".format(final_stats))
-
-    # gan.train_adv(train_itr=1000)
+    gan.train_adv_oracle()
 
 
 if __name__ == '__main__':
