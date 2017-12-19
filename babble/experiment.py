@@ -33,9 +33,9 @@ def oracle(gan):
 
 
 def full(gan):
-    gan.train_adv(train_itr=100,
+    gan.train_adv(train_itr=2000,
                   batch_size=10,
-                  test_interval=10)
+                  test_interval=100)
 
 
 ###############################################################################
