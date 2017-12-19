@@ -1,4 +1,5 @@
-# https://stackoverflow.com/a/40622302
+# Note: this tool is borrowed from https://stackoverflow.com/a/40622302
+# i didn't write this, it was just helpful and i needed to run it
 
 import numpy as np
 
