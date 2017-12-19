@@ -19,6 +19,7 @@
 % \usepackage{textcomp}
 % \usepackage{numproof}
 % \usepackage{math_shortcuts}
+\usepackage[margin=1in]{geometry}
 \usepackage{listings}
 \usepackage{float}
 \usepackage{blindtext}
@@ -82,7 +83,10 @@ The idea behind the generative adversarial approach is to split the network into
 The insight behind this model, however, is the interplay between the two subsystem. The outputs from the generator are fed into the discriminator and labelled as negative examples. This creates a feedback loop where the discriminator gets ever better at distinguishing fake sentences from real sentences which pushes the generator to produce more realistic sentences.
 
 \section{Background}
-    ???
+
+Generative adversarial networks are certainly in use to solve other problems in the machine learning world. Atienza uses a generative adversarial model on the MNIST data set in an attempt to computer-generate handwritten images that look similar to those in the MNIST data set \cite{gen_adv_example}. Some ideas from this implementation proved useful during this project.
+
+Furthermore, the concept of using a generative adversarial network in the field of text generation is already sparking academic interest. Zhang, Gan, and Carin demonstrate an approach that uses a convolutional neural network (CNN) as a discriminator and a long short term memory network (LSTM) as a generator \cite{gan}. With this setup, they are able to generate realistic English text.
 
 \section{Approach}
 
@@ -96,7 +100,7 @@ To accomplish the task of generating realistic text, I took the following steps.
     \item Tuned specific network hyperparameters
 \end{enumerate}
 
-The following sections describe each of these steps.
+\noindent The following sections describe each of these steps.
 
 \subsection{Network Model}
 
@@ -135,9 +139,9 @@ To actually represent the rules of this grammar, the \texttt{nltk} (Natural Lang
 
 Using the interface described above, this project implements the following grammars:\\
 
-\textbf{SimpleGrammar}
+\noindent \textbf{SimpleGrammar}
 
-This grammar represents a very small subset of English language sentences. In this language, all sentences take the form ``subject verb object'', and the total vocabulary is just 20 words. Please see Figure \ref{fig:simple_grammar} for a formal description of this context-free grammar.
+\noindent This grammar represents a very small subset of English language sentences. In this language, all sentences take the form ``subject verb object'', and the total vocabulary is just 20 words. Please see Figure \ref{fig:simple_grammar} for a formal description of this context-free grammar.
 
 \begin{figure}[ht]
     \centering
@@ -176,9 +180,9 @@ The following sections describe some of the specific network implementations use
 
 \subsubsection{Generators}
 
-Source code for the generators may be found in \texttt{generator.py}
+Source code for the generators may be found in \texttt{generator.py} \\
 
-\noindent \textbf{dense\_only\_gen} \\
+\noindent \textbf{dense\_only\_gen}
 
 This generator is composed of only dense layers. It follows the network layout described in Figure \ref{fig:dense_only_gen}.
 
@@ -193,9 +197,9 @@ The reasoning behind this network is to provide a basic generator model with no 
 
 \subsubsection{Discriminators}
 
-Source code for the discriminators can be found in \texttt{babble/discriminator.py}
+Source code for the discriminators can be found in \texttt{babble/discriminator.py} \\
 
-\noindent \textbf{no\_conv\_disc} \\
+\noindent \textbf{no\_conv\_disc}
 
 The following discriminator is implemented without any convolution layers using the network layout described in Figure \ref{fig:no_conv_disc}
 
@@ -282,7 +286,7 @@ After running for 250 iterations with a batch size of 100, the discriminator ach
 
 \subsection{Oracle Training}
 
-The generator, running with a pre-trained discriminator for 1000 iterations was able to produce the series of sentences found in Table \ref{tab:oracle_results}.
+The generator, running with a pre-trained discriminator for 1000 iterations was able to produce the series of sentences found in Table \ref{tab:oracle_results}. At each iteration shown in the table, the generator was fed a random input and asked to form a sentence from it.
 
 
 \begin{table}[ht]
@@ -307,25 +311,58 @@ The generator, running with a pre-trained discriminator for 1000 iterations was 
 
 \subsection{Adversarial Training}
 
-Finally, exercising the full model
+Finally, exercising the full model for 2000 iterations with a batch size of 10 produced the results shown in Table \ref{tab:adversarial_results}. At each iteration shown in the table below, the generator was given a random input and instructed to produce a sentence.
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{c|c}
+        Iteration & Sentence \\
+        \hline
+        0 & mahmoud wallace pierre \\
+        100 & nate kumail lost \\
+        200 & alex pierre pie \\
+        300 & alex saw cheese \\
+        400 & wallace saw lost \\
+        500 & wallace saw grapes \\
+        600 & wallace threw apples \\
+        700 & mahmoud pie pears \\
+        800 & wallace pie pears \\
+        900 & wallace threw pears \\
+        1000 & mahmoud cheese pears \\
+        1100 & kumail pie pears \\
+        1200 & kumail lost pears \\
+        1300 & wallace threw pears \\
+        1400 & wallace found apples \\
+        1500 & kumail found grapes \\
+        1600 & nate saw milk \\
+        1700 & nate saw cheese \\
+        1800 & kumail found grapes \\
+        1900 & mahmoud threw apples \\
+    \end{tabular}
+    \caption{Adversarial Training Results}
+    \label{tab:adversarial_results}
+\end{table}
+
 
 \section{Discussion}
 
 The results from training the discriminative network alone are very promising. Clearly, a simple network is sufficient to almost completely learn to identify whether a sentence satisfies the rules of SimpleGrammar.
 
-Similarly, the oracular training also yielded positive results.
+Similarly, the oracular training also yielded positive results. After only 1000 iterations with the oracle, the generator was able to consistently produce a grammatical sentence. The most interesting result, however, is that this training method always produces the same sentence. It seems plausible that the lack of flexibility in the oracle plays a role in this phenomenon. This would be a great topic for further exploration.
+
+The adversarial training method was in fact to produce a variety of sentences that satisfied the SimpleGrammar rules. Initially, it produced sentences that were garbage, such as "nate kumail lost." However, as the generator and discriminator played off each other, they were able to flesh out the structure of the language and began producing mostly grammatical sentences.
 
 \section{Conclusions}
 
-In the end, it seems that the approach of using a generative adversarial network to learn language structures has promise. Two very simple networks were able to get decent results in identifying sentences belonging to a simple grammar and in generating sentences according to that grammar.
+In the end, it seems that the approach of using a generative adversarial network to learn language structures has promise. Two very simple networks working in competition were able to get decent results in identifying sentences belonging to a simple grammar and in generating sentences according to that grammar.
 
 Future avenues of study could help illuminate some of these possibilities. For example:
 
 \begin{itemize}
     \item Expanding to use more complicated grammars than SimpleGrammar -- especially ones that allow sentences of variable lengths.
     \item Using the techniques developed here on English sentences.
-    \item Doing additional, format parameter tuning on the network structures described here.
-    \item Making adjustments to get results from the adversarial learning method that resemble real sentences.
+    \item Doing additional, formal parameter tuning on the network structures described here.
+    \item Explore additional network structures for both the generator and the discriminator.
 \end{itemize}
 
 \bibliography{sources}
