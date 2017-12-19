@@ -263,15 +263,56 @@ The adversarial training mode is the main training mode for this project.
 
 \section{Results}
 
+In this section, I ran the network in the three modes described in the Experiments section.
 
+\subsection{Grammaticality Training}
+
+After running for 250 iterations with a batch size of 100, the discriminator achieved the following metrics on the entire dataset of SimpleGrammar sentences.
+
+\begin{table}
+    \centering
+    \begin{tabular}{c|c}
+        \hline
+        Cross Entropy & x \\
+        Accuracy & x \\
+    \end{tabular}
+    \caption{Discriminator Results}
+    \label{tab:disc_results}
+\end{table}
+
+\subsection{Oracle Training}
+
+The generator, running with a pre-trained discriminator for 2000 iterations was able to produce this series of sentences.
+
+\begin{table}
+    \centering
+    \begin{tabular}{c|c|c}
+        Iteration & Loss & Sentence \\
+        \hline
+        0 & xxx & xxx \\
+    \end{tabular}
+    \caption{Discriminator Results}
+    \label{tab:disc_results}
+\end{table}
 
 \section{Discussion}
-\blindtext
+
+The results from training the discriminative network alone are very promising. Clearly, a simple network is sufficient to almost completely learn to identify whether a sentence satisfies the rules of SimpleGrammar.
+
+Similarly, the oracular training also yielded positive results.
 
 \section{Conclusions}
 
+In the end, it seems that the approach of using a generative adversarial network to learn language structures has promise. Two very simple networks were able to get decent results in identifying sentences belonging to a simple grammar and in generating sentences according to that grammar.
 
-Some text, from \cite{chollet2015keras}
+Future avenues of study could help illuminate some of these possibilities. For example:
+
+\begin{itemize}
+    \item Expanding to use more complicated grammars than SimpleGrammar -- especially ones that allow sentences of variable lengths.
+    \item Using the techniques developed here on English sentences.
+    \item Doing additional, format parameter tuning on the network structures described here.
+    \item Making adjustments to get results from the adversarial learning method that resemble real sentences.
+\end{itemize}
 
 \bibliography{sources}
 \bibliographystyle{plain}

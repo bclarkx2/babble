@@ -282,24 +282,7 @@ def get_args():
 
 def main():
 
-    # args = get_args()
-
-    disc = no_conv_disc(shape=(3, 1))
-    gen = only_dense_gen(input_dim=100)
-    gram = SimpleGrammar()
-    gan = GAN(disc, gen, gram)
-
-    # gan.train_disc_all(train_itr=200,
-    #                      batch_size=100)
-    #
-    # final_stats = gan.disc_flow.evaluate(gan.all_sentences,
-    #                                      gan.all_labels)
-    # print("final stats: {}".format(final_stats))
-
-    gan.train_adv_oracle(adv_itr=2000,
-                         adv_batch_size=1000)
-
-    # gan.save_oracle()
+    args = get_args()
 
 
 if __name__ == '__main__':
