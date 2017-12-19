@@ -267,14 +267,14 @@ In this section, I ran the network in the three modes described in the Experimen
 
 \subsection{Grammaticality Training}
 
-After running for 250 iterations with a batch size of 100, the discriminator achieved the following metrics on the entire dataset of SimpleGrammar sentences.
+After running for 250 iterations with a batch size of 100, the discriminator achieved the metrics on the entire dataset of SimpleGrammar sentences seen in Table \ref{tab:disc_results}.
 
-\begin{table}
+\begin{table}[ht]
     \centering
     \begin{tabular}{c|c}
         \hline
-        Cross Entropy & x \\
-        Accuracy & x \\
+        Cross Entropy & 0.047 \\
+        Accuracy & 985 \\
     \end{tabular}
     \caption{Discriminator Results}
     \label{tab:disc_results}
@@ -282,18 +282,32 @@ After running for 250 iterations with a batch size of 100, the discriminator ach
 
 \subsection{Oracle Training}
 
-The generator, running with a pre-trained discriminator for 2000 iterations was able to produce this series of sentences.
+The generator, running with a pre-trained discriminator for 1000 iterations was able to produce the series of sentences found in Table \ref{tab:oracle_results}.
 
-\begin{table}
+
+\begin{table}[ht]
     \centering
     \begin{tabular}{c|c|c}
         Iteration & Loss & Sentence \\
         \hline
-        0 & xxx & xxx \\
+        0 & 16.118 & mahmoud wallace pierre \\
+        100 & 16.118 & katrina kumail pierre \\
+        200 & \num{7.175e-4} & kumail lost milk \\
+        300 & \num{2.096e-4} & wallace found milk \\
+        400 & \num{1.543e-4} & wallace found pears \\
+        500 & \num{7.327e-5} & wallace found pears \\
+        600 & \num{6.395e-5} & wallace found pears \\
+        700 & \num{6.927e-5} & wallace found pears \\
+        800 & \num{1.471e-4} & wallace found pears \\
+        900 & \num{1.437e-4} & wallace found pears \\
     \end{tabular}
-    \caption{Discriminator Results}
-    \label{tab:disc_results}
+    \caption{Oracle Training Results}
+    \label{tab:oracle_results}
 \end{table}
+
+\subsection{Adversarial Training}
+
+Finally, exercising the full model
 
 \section{Discussion}
 

@@ -23,7 +23,7 @@ from discriminator import no_conv_disc
 from generator import basic_generator, only_dense_gen
 from grammar import SimpleGrammar
 
-np.random.seed(1234)
+np.random.seed(6789)
 
 
 ###############################################################################

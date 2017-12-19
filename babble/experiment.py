@@ -28,12 +28,14 @@ def disc(gan):
 
 
 def oracle(gan):
-    gan.train_adv_oracle(adv_itr=2000,
+    gan.train_adv_oracle(adv_itr=1000,
                          adv_batch_size=1000)
 
 
 def full(gan):
-    pass
+    gan.train_adv(train_itr=100,
+                  batch_size=10,
+                  test_interval=10)
 
 
 ###############################################################################
