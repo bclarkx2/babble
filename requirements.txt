@@ -65,7 +65,7 @@ sklearn==0.0
 smmap2==2.0.3
 snakeviz==0.4.2
 system-service==0.3
-tensorflow-gpu==1.4.0
+tensorflow-gpu==2.5.3
 tensorflow-tensorboard==0.4.0rc3
 tornado==4.5.2
 ubuntu-drivers-common==0.0.0
